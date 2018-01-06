@@ -2,15 +2,22 @@
 
 source ./secret.env
 
-# backup_url=$(curl https://todoist.com/api/v7/backups/get \
-#     -d token=$TODOIST_TOKEN \
-#     | jq '.[0].url')
+echo "Fetching backup URL from Todoist"
+backup_url=$(curl https://todoist.com/api/v7/backups/get \
+    -d token=$TODOIST_TOKEN \
+    | jq --raw-output '.[0].url')
+filename=$(echo $backup_url | sed 's/^.*\///')
 
-# echo $backup_url
+echo ""
+echo "Downloading backup file from Todoist"
+curl $backup_url > $filename
 
+echo ""
+echo "Uploading backup file to Dropbox"
 curl -X POST https://content.dropboxapi.com/2/files/upload \
     --header "Authorization:Bearer $DROPBOX_TOKEN" \
-    --header "Dropbox-API-Arg: {\"path\": \"/test.txt\",\"mode\": \"add\",\"autorename\": true,\"mute\": false}" \
+    --header "Dropbox-API-Arg: {\"path\": \"/$filename\",\"mode\": \"add\",\"autorename\": true,\"mute\": false}" \
     --header "Content-Type: application/octet-stream" \
-    --data-binary @test.txt
+    --data-binary @$filename
 
+rm $filename
