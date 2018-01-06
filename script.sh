@@ -2,17 +2,20 @@
 
 source ./secret.env
 
-echo "Fetching backup URL from Todoist"
-backup_url=$(curl https://todoist.com/api/v7/backups/get \
+echo "Fetching backup details from Todoist"
+most_recent=$(curl https://todoist.com/api/v7/backups/get \
     -d token=$TODOIST_TOKEN \
-    | jq --raw-output '.[0].url')
+    | jq --raw-output '.[0]')
+
+backup_url=$(echo $most_recent | jq --raw-output '.url')
 filename=$(echo $backup_url | sed 's/^.*\///')
+
+timestamp=$(echo $most_recent | jq --raw-output '.version' | sed 's/ .*$//')
 
 echo ""
 echo "Downloading backup file from Todoist"
 curl $backup_url > $filename
 
-timestamp=$(date "+%Y-%m-%d")
 echo ""
 echo "Uploading backup file to Dropbox"
 curl -X POST https://content.dropboxapi.com/2/files/upload \
