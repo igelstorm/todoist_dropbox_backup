@@ -12,12 +12,13 @@ filename=$(echo $backup_url | sed 's/^.*\///')
 
 timestamp=$(echo $most_recent | jq --raw-output '.version' | sed 's/ .*$//')
 
-echo ""
 echo "Downloading backup file from Todoist"
 curl -sS $backup_url > $filename
 
-echo ""
 echo "Uploading backup file to Dropbox"
+echo ""
+echo "If successful, you should see a response from the Dropbox API with details about the file:"
+echo ""
 curl -sS -X POST https://content.dropboxapi.com/2/files/upload \
     --header "Authorization:Bearer $DROPBOX_TOKEN" \
     --header "Dropbox-API-Arg: {\"path\": \"/$timestamp-$filename\",\"mode\": \"add\",\"autorename\": true,\"mute\": false}" \
