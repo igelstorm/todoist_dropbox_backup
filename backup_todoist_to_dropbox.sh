@@ -3,7 +3,7 @@
 source ./secret.env
 
 echo "Fetching backup details from Todoist"
-most_recent=$(curl https://todoist.com/api/v7/backups/get \
+most_recent=$(curl https://todoist.com/api/v8/backups/get \
     -d token=$TODOIST_TOKEN \
     | jq --raw-output '.[0]')
 
